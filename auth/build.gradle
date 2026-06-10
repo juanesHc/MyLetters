@@ -18,6 +18,8 @@ repositories {
 }
 
 dependencies {
+	implementation 'me.paulschwarz:springboot4-dotenv:5.1.0'
+
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 	implementation 'org.springframework.boot:spring-boot-starter-security'
 	implementation 'org.springframework.boot:spring-boot-starter-webmvc'
