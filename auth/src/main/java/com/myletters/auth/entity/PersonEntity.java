@@ -4,15 +4,13 @@ import com.myletters.auth.config.shared.ProviderEnum;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
 @Table(name = "person")
-@AllArgsConstructor
-@NoArgsConstructor
 @Getter
 @Setter
+@AllArgsConstructor
 public class PersonEntity  extends BaseEntity{
 
     private String username;
@@ -22,6 +20,9 @@ public class PersonEntity  extends BaseEntity{
 
     private String password;
 
+    @Column(nullable = false)
+    private boolean activated;
+
     @Enumerated(EnumType.STRING)
     private ProviderEnum provider;
 
@@ -29,5 +30,7 @@ public class PersonEntity  extends BaseEntity{
     @JoinColumn(name = "role_id", nullable = false)
     private RoleEntity roleEntity;
 
-
+    public PersonEntity() {
+        this.activated = true;
+    }
 }
