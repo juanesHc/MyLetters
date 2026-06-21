@@ -3,11 +3,12 @@ package com.myletters.auth.controller;
 import com.myletters.auth.dto.request.UpdateAccountDataRequestDto;
 import com.myletters.auth.dto.response.RetrievePersonDataResponseDto;
 import com.myletters.auth.service.myaccount.MyAccountService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -22,25 +23,32 @@ public class MyAccountController {
 
     private final MyAccountService myAccountService;
 
-    @GetMapping("/{id}")
+    @GetMapping
     public ResponseEntity<RetrievePersonDataResponseDto> retrievePersonData(
-            @PathVariable UUID id) {
+            @AuthenticationPrincipal String principalId) {
 
-        return ResponseEntity.ok(myAccountService.retrievePersonData(id));
+        return ResponseEntity.ok(myAccountService.retrievePersonData(currentPersonId(principalId)));
     }
 
-    @PutMapping("/{id}")
+    @PutMapping
     public ResponseEntity<RetrievePersonDataResponseDto> updateAccountData(
-            @PathVariable UUID id,
-            @RequestBody UpdateAccountDataRequestDto request) {
+            @AuthenticationPrincipal String principalId,
+            @Valid @RequestBody UpdateAccountDataRequestDto request) {
 
-        return ResponseEntity.ok(myAccountService.updateAccountData(id, request));
+        return ResponseEntity.ok(myAccountService.updateAccountData(currentPersonId(principalId), request));
     }
 
-    @PatchMapping("/{id}/deactivate")
-    public ResponseEntity<Void> deactivateAccount(@PathVariable UUID id) {
+    @PatchMapping("/deactivate")
+    public ResponseEntity<Void> deactivateAccount(@AuthenticationPrincipal String principalId) {
 
-        myAccountService.deactivateAccount(id);
+        myAccountService.deactivateAccount(currentPersonId(principalId));
         return ResponseEntity.noContent().build();
+    }
+
+    /**
+     * El principal lo coloca el JwtAuthFilter y es el id de la persona (subject del token).
+     */
+    private UUID currentPersonId(String principalId) {
+        return UUID.fromString(principalId);
     }
 }

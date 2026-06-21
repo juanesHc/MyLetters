@@ -14,9 +14,13 @@ public final class PersonDataValidator {
     public static final int USERNAME_MAX_LENGTH = 20;
     public static final int PASSWORD_MIN_LENGTH = 8;
 
-    // El correo debe ser válido y tener la estructura de Google (@gmail.com)
+    // El correo debe ser válido y tener la estructura de Google (@gmail.com).
+    // Constante reutilizada por la validación declarativa (@Pattern en los DTOs)
+    // y por la validación programática de abajo, para tener una única fuente de la regla.
+    public static final String GMAIL_REGEX = "^[A-Za-z0-9._%+-]+@gmail\\.com$";
+
     private static final Pattern GMAIL_PATTERN =
-            Pattern.compile("^[A-Za-z0-9._%+-]+@gmail\\.com$", Pattern.CASE_INSENSITIVE);
+            Pattern.compile(GMAIL_REGEX, Pattern.CASE_INSENSITIVE);
 
     private PersonDataValidator() {
     }
