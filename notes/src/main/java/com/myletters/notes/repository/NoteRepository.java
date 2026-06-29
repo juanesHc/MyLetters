@@ -15,4 +15,9 @@ public interface NoteRepository extends MongoRepository<NoteDocument, UUID> {
     boolean existsByOwnerIdAndTitle(UUID ownerId, String title);
 
     Optional<NoteDocument> findByIdAndOwnerId(UUID id, UUID ownerId);
+
+
+    List<NoteDocument> findByOwnerId(UUID ownerId);
+
+    void deleteByIdAndOwnerId(UUID noteId,UUID ownerId);
 }

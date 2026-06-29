@@ -37,8 +37,10 @@ public class RegisterNoteService {
 
     public void registerNoteContent(RegisterNoteContentRequestDto registerNoteContentRequestDto){
 
-        NoteDocument noteDocument=noteRepository.findById(UUID.fromString(registerNoteContentRequestDto.noteId())).
-                orElseThrow(()->new NoteNotFoundException(UUID.fromString(registerNoteContentRequestDto.noteId())));
+        NoteDocument noteDocument=noteRepository.findByIdAndOwnerId(
+                        UUID.fromString(registerNoteContentRequestDto.noteId()),
+                        UUID.fromString(registerNoteContentRequestDto.ownerId()))
+                .orElseThrow(()->new NoteNotFoundException(UUID.fromString(registerNoteContentRequestDto.noteId())));
 
             noteDocument.setContent(registerNoteContentRequestDto.content());
             noteDocument.setUpdatedAt(LocalDateTime.now());
