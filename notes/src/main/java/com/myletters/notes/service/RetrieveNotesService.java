@@ -1,10 +1,13 @@
 package com.myletters.notes.service;
 
+import com.myletters.notes.dto.request.RetrieveNotesFilterRequestDto;
 import com.myletters.notes.dto.response.NotesDataResponseDto;
 import com.myletters.notes.dto.response.RetrieveAllNotesResponseDto;
 import com.myletters.notes.entity.NoteDocument;
-import com.myletters.notes.repository.NoteRepository;
+import com.myletters.notes.specification.NotesSpecification;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -14,14 +17,22 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class RetrieveNotesService {
 
-    private final NoteRepository noteRepository;
+    private final MongoTemplate mongoTemplate;
 
-    public RetrieveAllNotesResponseDto retrieveAllNotes(UUID ownerId){
+    /**
+     * Consulta unificada: siempre acota al dueño y aplica los filtros que vengan. Sin filtros,
+     * devuelve todas las notas del usuario. El mensaje del caso vacío depende de si se filtró o no.
+     */
+    public RetrieveAllNotesResponseDto searchNotes(UUID ownerId, RetrieveNotesFilterRequestDto filter){
 
-        List<NoteDocument> noteDocumentList = noteRepository.findByOwnerId(ownerId);
+        Query query = NotesSpecification.build(ownerId, filter);
+        List<NoteDocument> noteDocumentList = mongoTemplate.find(query, NoteDocument.class);
 
         if (noteDocumentList.isEmpty()) {
-            return new RetrieveAllNotesResponseDto("No tienes ninguna nota registrada", List.of());
+            String message = hasText(filter.title())
+                    ? "No se encontraron notas con esos filtros"
+                    : "No tienes ninguna nota registrada";
+            return new RetrieveAllNotesResponseDto(message, List.of());
         }
 
         List<NotesDataResponseDto> notes = noteDocumentList.stream()
@@ -29,6 +40,10 @@ public class RetrieveNotesService {
                 .toList();
 
         return new RetrieveAllNotesResponseDto(null, notes);
+    }
+
+    private boolean hasText(String value) {
+        return value != null && !value.isBlank();
     }
 
     private NotesDataResponseDto toDto(NoteDocument note) {

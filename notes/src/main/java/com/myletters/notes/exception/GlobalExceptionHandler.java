@@ -1,6 +1,7 @@
 package com.myletters.notes.exception;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -22,6 +23,15 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(NoteTitleDuplicated.class)
     public ResponseEntity<Map<String, Object>> handleDuplicateTitle(NoteTitleDuplicated ex) {
         return buildResponse(HttpStatus.CONFLICT, ex.getMessage());   // 409
+    }
+
+    /**
+     * Red de seguridad a nivel de BD: si dos peticiones intentan crear el mismo título a la vez,
+     * el chequeo del service puede dejarlas pasar, pero el índice único de Mongo lanza esto.
+     */
+    @ExceptionHandler(DuplicateKeyException.class)
+    public ResponseEntity<Map<String, Object>> handleDuplicateKey(DuplicateKeyException ex) {
+        return buildResponse(HttpStatus.CONFLICT, "El titulo de una nota debe ser unico");
     }
 
     @ExceptionHandler(NoteNotFoundException.class)

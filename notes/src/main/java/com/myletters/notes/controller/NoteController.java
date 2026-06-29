@@ -24,14 +24,14 @@ public class NoteController {
     private final DropNoteService dropNoteService;
     private final RetrieveNotesService retrieveNotesService;
 
-    @PostMapping("/register/title")
+    @PostMapping
     public ResponseEntity<CreateNoteResponseDto> registerNoteTitle(@Valid @RequestBody GetNoteTitleRequestDto getNoteTitleRequestDto,
                                                                    @AuthenticationPrincipal String ownerId){
         CreateNoteRequestDto createNoteRequestDto=new CreateNoteRequestDto(getNoteTitleRequestDto.title(),ownerId);
         return ResponseEntity.ok(registerNoteService.createNote(createNoteRequestDto));
     }
 
-    @PatchMapping("/update/title/{noteId}")
+    @PatchMapping("/{noteId}/title")
     public ResponseEntity<UpdateNoteTitleResponseDto> updateNoteTitle(@Valid @RequestBody GetNoteTitleRequestDto getNoteTitleRequestDto,
                                                                                   @PathVariable String noteId,
                                                                       @AuthenticationPrincipal String ownerId){
@@ -39,7 +39,7 @@ public class NoteController {
         return ResponseEntity.ok(updateNoteService.updateNoteTitle(updateNoteRequestDto));
     }
 
-    @PostMapping("/register/content/{noteId}")
+    @PatchMapping("/{noteId}/content")
     public void registerNoteContent(@PathVariable String noteId,
                                     @Valid @RequestBody GetNoteContentRequestDto getNoteContentRequestDto,
                                     @AuthenticationPrincipal String ownerId) {
@@ -48,14 +48,20 @@ public class NoteController {
         registerNoteService.registerNoteContent(registerNoteContentRequestDto);
     }
 
-    @DeleteMapping("/delete/note/{noteId}")
+    @DeleteMapping("/{noteId}")
     public ResponseEntity<DeleteNoteResponseDto> deleteNote(@PathVariable String noteId , @AuthenticationPrincipal String ownerId ){
         return ResponseEntity.ok(dropNoteService.dropNote(UUID.fromString(noteId), UUID.fromString(ownerId)));
     }
 
-    @GetMapping("/retrieve/note")
-    public ResponseEntity<RetrieveAllNotesResponseDto> getAllNotes(@AuthenticationPrincipal String ownerId){
-        return ResponseEntity.ok(retrieveNotesService.retrieveAllNotes(UUID.fromString(ownerId)));
+    /**
+     * Consulta unificada: GET /api/v1/notes lista todas mis notas; GET /api/v1/notes?title=x
+     * filtra por título. El title es opcional, así que un solo endpoint cubre ambos casos.
+     */
+    @GetMapping
+    public ResponseEntity<RetrieveAllNotesResponseDto> getNotes(@RequestParam(required = false) String title,
+                                                                @AuthenticationPrincipal String ownerId){
+        RetrieveNotesFilterRequestDto filter = new RetrieveNotesFilterRequestDto(title);
+        return ResponseEntity.ok(retrieveNotesService.searchNotes(UUID.fromString(ownerId), filter));
     }
 
 
