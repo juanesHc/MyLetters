@@ -1,0 +1,30 @@
+# PostgreSQL local (en Docker) para el microservicio auth.
+# Reemplaza tu Postgres instalado en la máquina. Toma DB_USER y DB_PASSWORD de auth/.env
+# (docker compose lee ese .env automáticamente al correr desde esta carpeta).
+#
+# Levantar:    docker compose up -d
+# Apagar:      docker compose down        (los datos se conservan en el volumen)
+# Borrar todo: docker compose down -v     (elimina también los datos)
+#
+# IMPORTANTE: el puerto 5432 debe estar libre. Si tienes un Postgres instalado escuchando
+# en 5432, deténlo primero (Servicios de Windows) o habrá conflicto de puerto.
+services:
+  postgres:
+    image: postgres:16
+    container_name: myletters-postgres
+    environment:
+      POSTGRES_DB: myletters
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d myletters"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  postgres-data:
