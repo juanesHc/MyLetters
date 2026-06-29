@@ -1,0 +1,15 @@
+# MongoDB local para el microservicio notes.
+# Levantar:   docker compose up -d
+# Apagar:     docker compose down        (los datos se conservan en el volumen)
+# Borrar todo: docker compose down -v    (elimina también los datos)
+services:
+  mongo:
+    image: mongo:7
+    container_name: myletters-mongo
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+
+volumes:
+  mongo-data:
