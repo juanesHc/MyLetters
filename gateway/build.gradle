@@ -22,9 +22,27 @@ ext {
 }
 
 dependencies {
+	// Lee las variables de entorno desde un archivo .env (igual que auth y notes).
+	implementation 'me.paulschwarz:springboot4-dotenv:5.1.0'
+
 	implementation 'org.springframework.boot:spring-boot-starter-actuator'
 	implementation 'org.springframework.cloud:spring-cloud-starter-gateway-server-webmvc'
+
+	// Seguridad: el gateway valida el JWT en el borde (defensa en profundidad).
+	implementation 'org.springframework.boot:spring-boot-starter-security'
+
+	// JWT: el gateway SOLO valida tokens (no los genera), misma librería que auth/notes.
+	implementation 'io.jsonwebtoken:jjwt-api:0.12.6'
+	runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.12.6'
+	runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.12.6'
+
+	compileOnly 'org.projectlombok:lombok'
+	annotationProcessor 'org.projectlombok:lombok'
+
 	testImplementation 'org.springframework.boot:spring-boot-starter-actuator-test'
+	testImplementation 'org.springframework.boot:spring-boot-starter-security-test'
+	testCompileOnly 'org.projectlombok:lombok'
+	testAnnotationProcessor 'org.projectlombok:lombok'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
 
