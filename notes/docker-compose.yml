@@ -6,8 +6,10 @@ services:
   mongo:
     image: mongo:7
     container_name: myletters-mongo
+    # Host 27018 -> contenedor 27017. Usamos 27018 en el host para no chocar con un
+    # MongoDB nativo que pueda estar corriendo en el 27017.
     ports:
-      - "27017:27017"
+      - "27018:27017"
     volumes:
       - mongo-data:/data/db
 
