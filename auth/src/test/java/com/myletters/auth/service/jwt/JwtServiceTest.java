@@ -57,12 +57,13 @@ class JwtServiceTest {
     }
 
     @Test
-    @DisplayName("el token incluye iss, aud, sub y el claim userId")
+    @DisplayName("el token incluye iss, aud, sub y los claims userId y role")
     void generateToken_includesExpectedClaims() {
         String token = jwtService.generateToken(securityUser);
 
         assertThat(jwtService.extractUserId(token)).isEqualTo(userId);
         assertThat(jwtService.extractActivated(token)).isTrue();
+        assertThat(jwtService.extractRole(token)).isEqualTo(RoleEnum.COMMON.name());
         assertThat(jwtService.extractClaim(token, Claims::getIssuer)).isEqualTo(ISSUER);
         assertThat(jwtService.extractClaim(token, Claims::getAudience)).contains(AUDIENCE);
         String userIdClaim = jwtService.extractClaim(token, c -> c.get("userId", String.class));

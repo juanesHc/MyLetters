@@ -38,6 +38,8 @@ public class JwtService {
      *  - aud: para quién es válido (el ecosistema detrás del Gateway).
      *  - sub + claim "userId": el id de la persona.
      *  - claim "activated": si la cuenta está activa.
+     *  - claim "role": el rol de la persona (ADMIN / COMMON), para que el frontend pueda
+     *    adaptar la navegación (p. ej. mostrar la sección de admin) sin una llamada extra.
      */
     public String generateToken(SecurityUser user) {
         return Jwts.builder()
@@ -46,6 +48,7 @@ public class JwtService {
                 .subject(user.getId().toString())
                 .claim("userId", user.getId().toString())
                 .claim("activated", user.getPerson().isActivated())
+                .claim("role", user.getPerson().getRoleEntity().getRoleName().name())
                 .issuedAt(new Date())
                 .expiration(new Date(System.currentTimeMillis() + jwtExpiration))
                 .signWith(getSigningKey())
@@ -58,6 +61,10 @@ public class JwtService {
 
     public boolean extractActivated(String token) {
         return Boolean.TRUE.equals(extractAllClaims(token).get("activated", Boolean.class));
+    }
+
+    public String extractRole(String token) {
+        return extractAllClaims(token).get("role", String.class);
     }
 
     public <T> T extractClaim(String token, Function<Claims, T> resolver) {
